@@ -1,10 +1,6 @@
-#include <iostream>
 #include <windows.h>
-using namespace std;
-
 int main()
 {
-    system ("OpenFile.exe");
-    system ("pause");
+    system ("C:/Windows/System32/calc.exe");
     return 0;
 }
