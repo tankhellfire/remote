@@ -24,7 +24,7 @@ int main()
 
         if (hInternet)
         {
-            HINTERNET hConnect = InternetOpenUrl(hInternet, "https://mica-obsidian-sousaphone.glitch.me/", NULL, 0, INTERNET_FLAG_RELOAD, 0);
+            HINTERNET hConnect = InternetOpenUrl(hInternet, "https://google.com/", NULL, 0, INTERNET_FLAG_RELOAD, 0);
 
             if (hConnect)
             {

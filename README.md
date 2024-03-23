@@ -8,4 +8,5 @@ sudo apt-get install mingw-w64 cmake
 
 mingw-g++ -o main.exe a.cpp -mwindows -lshlwapi -s
 
-mingw-g++ -o main.exe a.cpp -mwindows -lshlwapi -lwininet -s
+mingw-g++ -o main.exe a.cpp -mwindows -lshlwapi -lwininet -static-libgcc -static-libstdc++ -s
+
