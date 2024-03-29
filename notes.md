@@ -27,3 +27,19 @@ CloseHandle(file);
 
 
 # http
+HINTERNET hInternet = InternetOpen("UserAgent", INTERNET_OPEN_TYPE_DIRECT, NULL, NULL, 0);
+
+HINTERNET hConnect = InternetOpenUrl(hInternet, "https://raw.githubusercontent.com/tankhellfire/remote/main/main.exe", NULL, 0, INTERNET_FLAG_RELOAD, 0);
+
+char buffer[1024];
+DWORD bytesRead;
+
+while (InternetReadFile(hConnect,buffer,sizeof(buffer)-1,&bytesRead)&&bytesRead!=0)
+{
+    buffer[bytesRead] = '\0';
+    WriteFile(file, buffer, bytesRead, NULL, NULL);
+}
+
+InternetCloseHandle(hConnect);
+
+InternetCloseHandle(hInternet);
