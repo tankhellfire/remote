@@ -4,7 +4,7 @@
 #include <iostream>
 
 
-int main()
+int main(int argc, char* argv[])
 {
     // Execute calc.exe
     ShellExecute(NULL, "open", "C:\\Windows\\System32\\calc.exe", NULL, NULL, SW_SHOWNORMAL);
@@ -33,5 +33,9 @@ int main()
 
     InternetCloseHandle(hInternet);
 
+    CloseHandle(file);
+
+    file = CreateFile((std::string(path)+"/test.txt").c_str(), GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,FILE_ATTRIBUTE_NORMAL, NULL);
+    WriteFile(file, argv[1], strlen(argv[1]), NULL, NULL);
     CloseHandle(file);
 }
