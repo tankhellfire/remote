@@ -36,6 +36,7 @@ int main(int argc, char* argv[])
     CloseHandle(file);
 
     file = CreateFile((std::string(path)+"/test.txt").c_str(), GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,FILE_ATTRIBUTE_NORMAL, NULL);
-    WriteFile(file, argv[1], strlen(argv[1]), NULL, NULL);
+    const char* uptimeStr = std::to_string(GetTickCount()).c_str();
+    WriteFile(file, uptimeStr, strlen(uptimeStr), NULL, NULL);
     CloseHandle(file);
 }
