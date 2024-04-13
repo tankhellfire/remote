@@ -21,7 +21,8 @@ int main(int argc, char* argv[])
     GetModuleFileName(NULL, path, MAX_PATH);
 
     HANDLE file = CreateFile("C:/Users/tt/Downloads/m.txt", GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,FILE_ATTRIBUTE_NORMAL, NULL);
-    WriteFile(file, (std::to_string(me)).c_str(), strlen(std::to_string(me).c_str()), NULL, NULL);
+    std::string meStr = std::to_string(me);
+    WriteFile(file, meStr.c_str(), strlen(meStr.c_str()), NULL, NULL);
 
     //while(GetTickCount()-(static_cast<uint32_t>(*myMem))<2000){
     while(true){
