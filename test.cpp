@@ -27,6 +27,7 @@ int main(int argc, char* argv[])
     //while(GetTickCount()-(static_cast<uint32_t>(*myMem))<2000){
     while(true){
         *static_cast<uint32_t*>(myMem) = GetTickCount();
+        WriteFile(file, std::to_string(static_cast<uint32_t>(*theirMem)).c_str(), strlen(std::to_string(static_cast<uint32_t>(*theirMem)).c_str()), NULL, NULL);
         if(200<GetTickCount()-(static_cast<uint32_t>(*theirMem))){
             meStr=std::string(path)+std::string(" ")+std::to_string((me+1)%2);
             ShellExecute(NULL, "open",meStr.c_str(), NULL, NULL, SW_SHOWNORMAL);
