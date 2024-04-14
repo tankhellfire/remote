@@ -11,7 +11,7 @@ GetModuleFileName(NULL, path, MAX_PATH);
 PathRemoveFileSpec(path);
 
 ## run
-ShellExecute(NULL, "open", "C:\\Windows\\System32\\calc.exe", NULL, NULL, SW_SHOWNORMAL);
+CreateProcess(NULL, "C:\\Windows\\System32\\calc.exe 1", NULL, NULL, FALSE, 0, NULL, NULL, NULL, NULL);
 
 ## make
 HANDLE file = CreateFile("C:/Users/tt/Downloads/m.txt", GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,FILE_ATTRIBUTE_NORMAL, NULL);
