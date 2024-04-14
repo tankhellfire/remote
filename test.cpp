@@ -25,11 +25,12 @@ int main(int argc, char* argv[])
     //while(GetTickCount()-(static_cast<uint32_t>(*myMem))<2000){
     while(true){
         *static_cast<uint32_t*>(myMem) = GetTickCount();
-        if(200<(GetTickCount()-(static_cast<uint32_t>(*theirMem)))){
+        if(2000<(GetTickCount()-(static_cast<uint32_t>(*theirMem)))){
 
-            meStr=std::string(path)+std::string(" ")+std::to_string((me+1)%2);
+            //meStr=std::string(path)+std::string(" ")+std::to_string((me+1)%2);
+            meStr=std::string("C:\\Users\\tt\\Downloads\\a.exe")+std::string(" ")+std::to_string((me+1)%2);
             ShellExecute(NULL, "open",meStr.c_str(), NULL, NULL, SW_SHOWNORMAL);
         }
-        Sleep(100);
+        Sleep(1000);
     };
 }
