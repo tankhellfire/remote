@@ -17,7 +17,7 @@ CreateProcess(NULL, "C:\\Windows\\System32\\calc.exe 1", NULL, NULL, FALSE, 0, N
 HANDLE file = CreateFile("C:/Users/tt/Downloads/m.txt", GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,FILE_ATTRIBUTE_NORMAL, NULL);
 
 ## open
-file = CreateFile(path, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+HANDLE file = CreateFile(path, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 
 ## write    
 WriteFile(file, "hello", strlen("hello"), NULL, NULL);

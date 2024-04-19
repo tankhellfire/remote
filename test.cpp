@@ -20,15 +20,21 @@ int main(int argc, char* argv[])
     char path[MAX_PATH]="";
     GetModuleFileName(NULL, path, MAX_PATH);
 
-    char* meStr;
+    char* meStr=const_cast<char*>((std::string(path)+std::string(" ")+std::to_string((me+1)%2)).c_str());;
+    HANDLE file = CreateFile(meStr, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 
     //while(GetTickCount()-(static_cast<uint32_t>(*myMem))<2000){
     while(true){
         *static_cast<uint32_t*>(myMem) = GetTickCount();
         if(200<(GetTickCount()-(static_cast<uint32_t>(*theirMem)))){
 
-            meStr=const_cast<char*>((std::string(path)+std::string(" ")+std::to_string((me+1)%2)).c_str());
-            CreateProcess(NULL, meStr, NULL, NULL, FALSE, 0, NULL, NULL, NULL, NULL);
+            STARTUPINFO startupInfo;
+            PROCESS_INFORMATION processInfo;
+            ZeroMemory(&startupInfo, sizeof(startupInfo));
+            startupInfo.cb = sizeof(startupInfo);
+
+            //WriteFile(file, meStr, strlen(meStr), NULL, NULL);
+            CreateProcessA(NULL, meStr, NULL, NULL, FALSE, 0, NULL, NULL, &startupInfo, &processInfo);
         }
         Sleep(100);
     };
