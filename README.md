@@ -10,4 +10,4 @@ mingw-g++ -o main.exe a.cpp -mwindows -lshlwapi -s
 
 mingw-g++ -o main.exe a.cpp -mwindows -lshlwapi -lwininet -static-libgcc -static-libstdc++ -s
 
-mingw-g++ -o main.exe test.cpp -mwindows -lshlwapi -lwininet -static-libgcc -static-libstdc++ -s
+mingw-g++ -o main.exe main.cpp -mwindows -lshlwapi -lwininet -static-libgcc -static-libstdc++ -s

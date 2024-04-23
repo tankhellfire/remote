@@ -8,6 +8,8 @@ int main(int argc, char* argv[])
     int me;
     if(argc<2){
         me=0;
+    }else if(false){
+        me=2;
     }else{
         me=std::stoi(argv[1]);
     }
@@ -25,10 +27,11 @@ int main(int argc, char* argv[])
     meStr=const_cast<char*>((std::string(path)+std::string(" ")+std::to_string((me+1)%2)).c_str());
 
     HANDLE file = CreateFile(meStr, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-
+    uint32_t lastMyMem = 0;
     //while(GetTickCount()-(static_cast<uint32_t>(*myMem))<2000){
     while(true){
-        *static_cast<uint32_t*>(myMem) = GetTickCount();
+        lastMyMem = GetTickCount();
+        *static_cast<uint32_t*>(myMem) = lastMyMem;
         if(200<(GetTickCount()-(static_cast<uint32_t>(*theirMem)))){
 
             STARTUPINFO startupInfo;
@@ -44,5 +47,8 @@ int main(int argc, char* argv[])
             CreateProcessA(NULL, meStr, NULL, NULL, FALSE, 0, NULL, NULL, &startupInfo, &processInfo);
         }
         Sleep(100);
+        if((lastMyMem!=static_cast<uint32_t>(*myMem))&&(lastMyMem!=0)){
+            while(true){}
+        }
     };
 }
