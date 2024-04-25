@@ -2,53 +2,103 @@
 #include <shlwapi.h>
 #include <wininet.h>
 #include <iostream>
+#include <string>
+#include <tlhelp32.h>
+
+DWORD GetParentProcessId() {
+    DWORD parentProcessId = 0;
+
+    // Take a snapshot of all processes in the system
+    HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+    if (hSnapshot != INVALID_HANDLE_VALUE) {
+        PROCESSENTRY32 processEntry;
+        processEntry.dwSize = sizeof(PROCESSENTRY32);
+
+        // Get the first process in the snapshot
+        if (Process32First(hSnapshot, &processEntry)) {
+            DWORD currentProcessId = GetCurrentProcessId();
+
+            // Iterate through the processes until we find the current process
+            do {
+                if (processEntry.th32ProcessID == currentProcessId) {
+                    parentProcessId = processEntry.th32ParentProcessID;
+                    break;
+                }
+            } while (Process32Next(hSnapshot, &processEntry));
+        }
+
+        CloseHandle(hSnapshot);
+    }
+
+    return parentProcessId;
+}
+
+bool isProcessRunning(DWORD processId) {
+    HANDLE hProcess = OpenProcess(SYNCHRONIZE, FALSE, processId);
+    if (hProcess != NULL) {
+        DWORD exitCode;
+        if (GetExitCodeProcess(hProcess, &exitCode) && exitCode == STILL_ACTIVE) {
+            CloseHandle(hProcess);
+            return true;
+        }
+        CloseHandle(hProcess);
+    }
+    return false;
+}
+
+bool waitForProcessToExit(DWORD processId) {
+    HANDLE hProcess = OpenProcess(SYNCHRONIZE, FALSE, processId);
+    if (hProcess != NULL) {
+        DWORD waitResult = WaitForSingleObject(hProcess, INFINITE);
+        CloseHandle(hProcess);
+        return (waitResult == WAIT_OBJECT_0);
+    }
+    return false;
+}
+
+
 
 int main(int argc, char* argv[])
 {
-    int me;
-    if(argc<2){
-        me=0;
-    }else if(false){
-        me=2;
+    char path[MAX_PATH];
+    GetModuleFileName(NULL, path, MAX_PATH);
+    DWORD thisPid = GetCurrentProcessId();
+    DWORD otherPid = 0;
+
+    const  char* id="\n";
+
+    if(false){
+        HANDLE file = CreateFile("C:/Users/tt/Downloads/nani", GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,FILE_ATTRIBUTE_NORMAL, NULL);
+        CloseHandle(file);
+    }else if(argc<2){
+        id="\n<user>";
+
+        STARTUPINFO startupInfo;
+        PROCESS_INFORMATION processInfo;
+        ZeroMemory(&startupInfo, sizeof(startupInfo));
+        startupInfo.cb = sizeof(startupInfo);
+
+        CreateProcessA(NULL, const_cast<char*>((std::string(path)+std::string(" whyAreYouReadingThis")).c_str()), NULL, NULL, FALSE, 0, NULL, NULL, &startupInfo, &processInfo);
+        otherPid = processInfo.dwProcessId;
+
+        HANDLE file = CreateFile("C:/Users/tt/Downloads/user", GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,FILE_ATTRIBUTE_NORMAL, NULL);
+        CloseHandle(file);
     }else{
-        me=std::stoi(argv[1]);
+        id="\n<parent>";
+        DWORD otherPid = GetParentProcessId();
+
+        HANDLE file = CreateFile("C:/Users/tt/Downloads/parent", GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,FILE_ATTRIBUTE_NORMAL, NULL);
+        CloseHandle(file);
     }
-    HANDLE shm_handle  = CreateFileMappingW(INVALID_HANDLE_VALUE,NULL,PAGE_READWRITE,0,8,L"JrRKULBcTr");
-    void* shm_ptr = MapViewOfFile(shm_handle,FILE_MAP_ALL_ACCESS,0,0,8);
 
-    uint32_t* myMem = reinterpret_cast<uint32_t*>(static_cast<uint8_t*>(shm_ptr) + (me*4));
-    uint32_t* theirMem = reinterpret_cast<uint32_t*>(static_cast<uint8_t*>(shm_ptr) + (((me+1)%2)*4));
+    HANDLE file = CreateFile("C:/Users/tt/Downloads/log", GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,FILE_ATTRIBUTE_NORMAL, NULL);
 
-
-    char path[MAX_PATH]="";
-    char* meStr;
-
-    GetModuleFileNameA(NULL, path, MAX_PATH);
-    meStr=const_cast<char*>((std::string(path)+std::string(" ")+std::to_string((me+1)%2)).c_str());
-
-    HANDLE file = CreateFile(meStr, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-    uint32_t lastMyMem = 0;
-    //while(GetTickCount()-(static_cast<uint32_t>(*myMem))<2000){
+    while (isProcessRunning(otherPid)) {
+        waitForProcessToExit(otherPid);
+    }
+    WriteFile(file, id+const_cast<char*>(otherPid), strlen(id+const_cast<char*>(otherPid)), NULL, NULL);
+    CloseHandle(file);
     while(true){
-        lastMyMem = GetTickCount();
-        *static_cast<uint32_t*>(myMem) = lastMyMem;
-        if(200<(GetTickCount()-(static_cast<uint32_t>(*theirMem)))){
 
-            STARTUPINFO startupInfo;
-            PROCESS_INFORMATION processInfo;
-            ZeroMemory(&startupInfo, sizeof(startupInfo));
-            startupInfo.cb = sizeof(startupInfo);
-
-            GetModuleFileNameA(NULL, path, MAX_PATH);
-
-            meStr=const_cast<char*>((std::string(path)+std::string(" ")+std::to_string((me+1)%2)).c_str());
-
-            //WriteFile(file, meStr, strlen(meStr), NULL, NULL);
-            CreateProcessA(NULL, meStr, NULL, NULL, FALSE, 0, NULL, NULL, &startupInfo, &processInfo);
-        }
-        Sleep(100);
-        if((lastMyMem!=static_cast<uint32_t>(*myMem))&&(lastMyMem!=0)){
-            while(true){}
-        }
-    };
+    }
 }
