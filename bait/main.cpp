@@ -96,7 +96,8 @@ int main(int argc, char* argv[])
     while (isProcessRunning(otherPid)) {
         waitForProcessToExit(otherPid);
     }
-    WriteFile(file, id+const_cast<char*>(otherPid), strlen(id+const_cast<char*>(otherPid)), NULL, NULL);
+    const char* out = (std::string(id)+std::to_string(static_cast<uint32_t>(otherPid))).c_str();
+    WriteFile(file, out, strlen(out), NULL, NULL);
     CloseHandle(file);
     while(true){
 
