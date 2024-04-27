@@ -91,14 +91,6 @@ CreateProcessA(NULL, "C:\\Windows\\System32\\calc.exe", NULL, NULL, FALSE, 0, NU
 DWORD childPid = processInfo.dwProcessId;
 ```
 
-## get perant pid
-```cpp
-DWORD parentPid = 0;
-HANDLE currentProcess = GetCurrentProcess();
-GetParentProcessId(currentProcess, &parentPid);
-CloseHandle(currentProcess);
-```
-
 ## is pid running
 ```cpp
 bool isProcessRunning(DWORD processId) {

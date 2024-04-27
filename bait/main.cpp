@@ -3,34 +3,19 @@
 #include <wininet.h>
 #include <iostream>
 #include <string>
-#include <tlhelp32.h>
 
-DWORD GetParentProcessId() {
-    DWORD parentProcessId = 0;
-
-    // Take a snapshot of all processes in the system
-    HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
-    if (hSnapshot != INVALID_HANDLE_VALUE) {
-        PROCESSENTRY32 processEntry;
-        processEntry.dwSize = sizeof(PROCESSENTRY32);
-
-        // Get the first process in the snapshot
-        if (Process32First(hSnapshot, &processEntry)) {
-            DWORD currentProcessId = GetCurrentProcessId();
-
-            // Iterate through the processes until we find the current process
-            do {
-                if (processEntry.th32ProcessID == currentProcessId) {
-                    parentProcessId = processEntry.th32ParentProcessID;
-                    break;
-                }
-            } while (Process32Next(hSnapshot, &processEntry));
+std::wstring getPathFromPID(DWORD pid) {
+    std::wstring exe_path;
+    HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, pid);
+    if (hProcess) {
+        WCHAR filename[MAX_PATH];
+        DWORD dwSize = GetModuleFileNameW(NULL, filename, MAX_PATH);
+        if (dwSize > 0) {
+            exe_path = filename;
         }
-
-        CloseHandle(hSnapshot);
+        CloseHandle(hProcess);
     }
-
-    return parentProcessId;
+    return exe_path;
 }
 
 bool isProcessRunning(DWORD processId) {
@@ -56,50 +41,32 @@ bool waitForProcessToExit(DWORD processId) {
     return false;
 }
 
-
-
 int main(int argc, char* argv[])
 {
-    char path[MAX_PATH];
-    GetModuleFileName(NULL, path, MAX_PATH);
-    DWORD thisPid = GetCurrentProcessId();
-    DWORD otherPid = 0;
-
-    const  char* id="\n";
-
-    if(false){
-        HANDLE file = CreateFile("C:/Users/tt/Downloads/nani", GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,FILE_ATTRIBUTE_NORMAL, NULL);
-        CloseHandle(file);
-    }else if(argc<2){
-        id="\n<user>";
-
-        STARTUPINFO startupInfo;
-        PROCESS_INFORMATION processInfo;
-        ZeroMemory(&startupInfo, sizeof(startupInfo));
-        startupInfo.cb = sizeof(startupInfo);
-
-        CreateProcessA(NULL, const_cast<char*>((std::string(path)+std::string(" whyAreYouReadingThis")).c_str()), NULL, NULL, FALSE, 0, NULL, NULL, &startupInfo, &processInfo);
-        otherPid = processInfo.dwProcessId;
-
-        HANDLE file = CreateFile("C:/Users/tt/Downloads/user", GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,FILE_ATTRIBUTE_NORMAL, NULL);
-        CloseHandle(file);
+    int myNum=0;
+    if(argc=1){
+        //user
+    }else if(argv[1]=="update"){
+        //payload
+        return 0;
     }else{
-        id="\n<parent>";
-        DWORD otherPid = GetParentProcessId();
-
-        HANDLE file = CreateFile("C:/Users/tt/Downloads/parent", GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,FILE_ATTRIBUTE_NORMAL, NULL);
-        CloseHandle(file);
+        myNum=std::stoi(argv[1]);
     }
 
-    HANDLE file = CreateFile("C:/Users/tt/Downloads/log", GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,FILE_ATTRIBUTE_NORMAL, NULL);
 
-    while (isProcessRunning(otherPid)) {
-        waitForProcessToExit(otherPid);
-    }
-    const char* out = (std::string(id)+std::to_string(static_cast<uint32_t>(otherPid))).c_str();
-    WriteFile(file, out, strlen(out), NULL, NULL);
-    CloseHandle(file);
-    while(true){
+    // HANDLE shm_handle  = CreateFileMappingW(INVALID_HANDLE_VALUE,NULL,PAGE_READWRITE,0,8,L"JrRKULBcTr");
+    // void* shm_ptr = MapViewOfFile(shm_handle,FILE_MAP_ALL_ACCESS,0,0,8);
 
-    }
+
+    // STARTUPINFO startupInfo;
+    // PROCESS_INFORMATION processInfo;
+    // ZeroMemory(&startupInfo, sizeof(startupInfo));
+    // startupInfo.cb = sizeof(startupInfo);
+
+    // CreateProcessA(NULL, (getPathFromPID(GetCurrentProcessId())+std::string(" 1")).c_str(), NULL, NULL, FALSE, 0, NULL, NULL, &startupInfo, &processInfo);
+
+    // DWORD childPid = processInfo.dwProcessId;
+
+
+    //*reinterpret_cast<uint32_t*>(static_cast<uint8_t*>(shm_ptr));
 }
