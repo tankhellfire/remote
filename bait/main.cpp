@@ -21,12 +21,12 @@ std::wstring getPathFromPID(DWORD pid) {
 bool isProcessRunning(DWORD processId) {
     HANDLE hProcess = OpenProcess(SYNCHRONIZE, FALSE, processId);
     if (hProcess != NULL) {
-        DWORD exitCode;
-        if (GetExitCodeProcess(hProcess, &exitCode) && exitCode == STILL_ACTIVE) {
-            CloseHandle(hProcess);
+        // DWORD exitCode;
+        // if (GetExitCodeProcess(hProcess, &exitCode) && exitCode == STILL_ACTIVE) {
+        //     CloseHandle(hProcess);
             return true;
-        }
-        CloseHandle(hProcess);
+        // }
+        // CloseHandle(hProcess);
     }
     return false;
 }
@@ -57,7 +57,7 @@ int main(int argc, char* argv[])
     HANDLE shm_handle  = CreateFileMappingW(INVALID_HANDLE_VALUE,NULL,PAGE_READWRITE,0,8,L"JrRKULBcTr");
     void* shm_ptr = MapViewOfFile(shm_handle,FILE_MAP_ALL_ACCESS,0,0,8);
 
-    if(isProcessRunning(*reinterpret_cast<uint32_t*>(static_cast<uint8_t*>(shm_ptr)))){
+    if(isProcessRunning(*reinterpret_cast<DWORD*>(static_cast<uint8_t*>(shm_ptr)))){
         return 0;
     }
     *reinterpret_cast<DWORD*>(static_cast<uint8_t*>(shm_ptr))=GetCurrentProcessId();
