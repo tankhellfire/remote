@@ -2,14 +2,56 @@
 #include <shlwapi.h>
 #include <wininet.h>
 #include <iostream>
+#include <string>
+
+std::string fetchUrl(const std::string& url) {
+    std::string response;
+    HINTERNET hInternet, hURL;
+
+    // Initialize WinINet
+    hInternet = InternetOpen(L"Mozilla/5.0", INTERNET_OPEN_TYPE_PRECONFIG, NULL, NULL, 0);
+    if (hInternet == NULL) {
+        //Failed to initialize WinINet
+        return "";
+    }
+
+    // Open the URL
+    hURL = InternetOpenUrl(hInternet, url.c_str(), NULL, 0, INTERNET_FLAG_RELOAD, 0);
+    if (hURL == NULL) {
+        //Failed to open URL
+        InternetCloseHandle(hInternet);
+        return "";
+    }
+
+    // Read the response data
+    const DWORD bufferSize = 4096;
+    char buffer[bufferSize];
+    DWORD bytesRead;
+    do {
+        if (!InternetReadFile(hURL, buffer, bufferSize - 1, &bytesRead)) {
+            //Failed to read from URL
+            InternetCloseHandle(hURL);
+            InternetCloseHandle(hInternet);
+            return "";
+        }
+        buffer[bytesRead] = '\0';
+        response.append(buffer);
+    } while (0 < bytesRead);
+
+    // Clean up
+    InternetCloseHandle(hURL);
+    InternetCloseHandle(hInternet);
+
+    return response;
+}
 
 int main(int argc, char* argv[])
 {
     int me;
     if(argc<2){
         me=0;
-    }else if(false){
-        me=2;
+    }else if(argv[1]=="update"){
+        fetchUrl()
     }else{
         me=std::stoi(argv[1]);
     }
