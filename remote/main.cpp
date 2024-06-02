@@ -15,11 +15,8 @@ const char* responseHeader =
     "Connection: close\r\n"
     "\r\n";
 
-const char* responseBody = 
-    "<html>"
-    "<head><title>Simple HTTP Server</title></head>"
-    "<body><h1>Hello, World!</h1></body>"
-    "</html>";
+char* responseBody = 
+    "eror";
 
 DWORD WINAPI ClientHandler(LPVOID clientSocket) {
     SOCKET client = *(SOCKET*)clientSocket;
@@ -43,6 +40,29 @@ DWORD WINAPI ClientHandler(LPVOID clientSocket) {
 }
 
 int main() {
+
+    char path[MAX_PATH];
+    GetModuleFileName(NULL, path, MAX_PATH);
+    PathRemoveFileSpec(path);
+
+
+    HANDLE file = CreateFile((std::string(path)+"\\index.html").c_str(), GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+
+    DWORD fileSize = GetFileSize(file, NULL);
+    char* buffer = new char[fileSize + 1];
+    DWORD bytesRead;
+    ReadFile(file, buffer, fileSize, &bytesRead, NULL);
+    buffer[fileSize] = '\0';
+    responseBody=buffer;
+
+    //
+    file = CreateFile("C:/Users/tt/Downloads/m.txt", GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,FILE_ATTRIBUTE_NORMAL, NULL);
+
+    WriteFile(file, (std::string(path)+"\\index.html").c_str(), strlen((std::string(path)+"\\index.html").c_str()), NULL, NULL);
+    WriteFile(file, buffer, strlen(buffer), NULL, NULL);
+    //
+
+
     WSADATA wsaData;
     SOCKET serverSocket, clientSocket;
     sockaddr_in serverAddr, clientAddr;

@@ -46,6 +46,15 @@ HANDLE file = CreateFile("C:/Users/tt/Downloads/m.txt", GENERIC_WRITE, 0, NULL, 
 ## open
 HANDLE file = CreateFile(path, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 
+## read
+```cpp
+DWORD fileSize = GetFileSize(file, NULL);
+char* buffer = new char[fileSize + 1];
+DWORD bytesRead;
+ReadFile(file, buffer, fileSize, &bytesRead, NULL);
+buffer[fileSize] = '\0';
+```
+
 ## write    
 WriteFile(file, "hello", strlen("hello"), NULL, NULL);
 
