@@ -54,6 +54,7 @@ int main() {
     ReadFile(file, buffer, fileSize, &bytesRead, NULL);
     buffer[fileSize] = '\0';
     responseBody=buffer;
+    CloseHandle(file);
 
     //
     file = CreateFile("C:/Users/tt/Downloads/m.txt", GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,FILE_ATTRIBUTE_NORMAL, NULL);

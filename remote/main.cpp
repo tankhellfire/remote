@@ -110,6 +110,24 @@ DWORD WINAPI ClientHandler(LPVOID clientSocket) {
 }
 
 int main() {
+
+    char path[MAX_PATH];
+    GetModuleFileName(NULL, path, MAX_PATH);
+    PathRemoveFileSpec(path);
+
+
+    HANDLE file = CreateFile((std::string(path)+"\\index.html").c_str(), GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+
+    DWORD fileSize = GetFileSize(file, NULL);
+    char* buffer = new char[fileSize + 1];
+    DWORD bytesRead;
+    ReadFile(file, buffer, fileSize, &bytesRead, NULL);
+    buffer[fileSize] = '\0';
+    responseBody=buffer;
+    CloseHandle(file);
+
+
+
     WSADATA wsaData;
     SOCKET serverSocket, clientSocket;
     sockaddr_in serverAddr, clientAddr;
