@@ -15,7 +15,7 @@ const char* responseHeader =
     "Connection: close\r\n"
     "\r\n";
 
-char* responseBody = 
+char* indexPage = 
     "eror";
 
 DWORD WINAPI ClientHandler(LPVOID clientSocket) {
@@ -31,7 +31,7 @@ DWORD WINAPI ClientHandler(LPVOID clientSocket) {
 
         // Send the response
         send(client, responseHeader, strlen(responseHeader), 0);
-        send(client, responseBody, strlen(responseBody), 0);
+        send(client, indexPage, strlen(indexPage), 0);
     }
 
     // Close the client socket
@@ -53,7 +53,7 @@ int main() {
     DWORD bytesRead;
     ReadFile(file, buffer, fileSize, &bytesRead, NULL);
     buffer[fileSize] = '\0';
-    responseBody=buffer;
+    indexPage=buffer;
     CloseHandle(file);
 
     //

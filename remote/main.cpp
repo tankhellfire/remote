@@ -10,17 +10,11 @@
 #pragma comment(lib, "wininet.lib")
 #pragma comment(lib, "ws2_32.lib")
 
-const char* responseHeader = 
-    "HTTP/1.1 200 OK\r\n"
-    "Content-Type: text/html\r\n"
-    "Connection: close\r\n"
-    "\r\n";
+char* responseHeader;
 
-const char* responseBody = 
-    "<html>"
-    "<head><title>Simple HTTP Server</title></head>"
-    "<body><h1>Hello, World!</h1></body>"
-    "</html>";
+char* indexPage;
+
+char* indexImg;
 
 struct HttpRequest {
     std::string method;
@@ -96,8 +90,25 @@ DWORD WINAPI ClientHandler(LPVOID clientSocket) {
         std::cout << std::endl;
 
         // Send the response
-        send(client, responseHeader, strlen(responseHeader), 0);
-        send(client, responseBody, strlen(responseBody), 0);
+        if(httpRequest.path=="/"){
+            responseHeader = 
+                "HTTP/1.1 200 OK\r\n"
+                "Content-Type: text/html\r\n"
+                "Connection: close\r\n"
+                "\r\n";
+
+            send(client, responseHeader, strlen(responseHeader), 0);
+            send(client, indexPage, strlen(indexPage), 0);
+        }else if(httpRequest.path=="/img"){
+            responseHeader = 
+                "HTTP/1.1 200 OK\r\n"
+                "Content-Type: image/jpeg\r\n"
+                "\r\n";
+                
+            send(client, responseHeader, strlen(responseHeader), 0);
+            send(client, indexPage, strlen(indexPage), 0);
+
+        }
 
         // Clean up
         delete[] httpRequest.body;
@@ -116,6 +127,7 @@ int main() {
     PathRemoveFileSpec(path);
 
 
+
     HANDLE file = CreateFile((std::string(path)+"\\index.html").c_str(), GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 
     DWORD fileSize = GetFileSize(file, NULL);
@@ -123,7 +135,19 @@ int main() {
     DWORD bytesRead;
     ReadFile(file, buffer, fileSize, &bytesRead, NULL);
     buffer[fileSize] = '\0';
-    responseBody=buffer;
+    indexPage=buffer;
+
+
+    file = CreateFile((std::string(path)+"\\img.jpg").c_str(), GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+
+    fileSize = GetFileSize(file, NULL);
+    buffer = new char[fileSize + 1];
+    bytesRead;
+    ReadFile(file, buffer, fileSize, &bytesRead, NULL);
+    buffer[fileSize] = '\0';
+    indexPage=buffer;
+
+
     CloseHandle(file);
 
 
