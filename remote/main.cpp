@@ -12,9 +12,9 @@
 
 char* responseHeader;
 
-char* indexPage;
+std::string indexPage="404";
 
-char* indexImg;
+std::string indexImg="404";
 
 struct HttpRequest {
     std::string method;
@@ -88,17 +88,18 @@ DWORD WINAPI ClientHandler(LPVOID clientSocket) {
         }
         std::cout << httpRequest.bodyLength << std::endl;
         std::cout << std::endl;
+        SetCursorPos(0, 0);
 
         // Send the response
         if(httpRequest.path=="/"){
             responseHeader = 
                 "HTTP/1.1 200 OK\r\n"
-                "Content-Type: text/html\r\n"
-                "Connection: close\r\n"
+                //"Content-Type: text/html\r\n"
+                //"Connection: close\r\n"
                 "\r\n";
 
             send(client, responseHeader, strlen(responseHeader), 0);
-            send(client, indexPage, strlen(indexPage), 0);
+            send(client, indexPage.c_str(), indexPage.size(), 0);
         }else if(httpRequest.path=="/img"){
             responseHeader = 
                 "HTTP/1.1 200 OK\r\n"
@@ -106,7 +107,16 @@ DWORD WINAPI ClientHandler(LPVOID clientSocket) {
                 "\r\n";
                 
             send(client, responseHeader, strlen(responseHeader), 0);
-            send(client, indexPage, strlen(indexPage), 0);
+            send(client, indexImg.c_str(), indexImg.size(), 0);
+            //std::cout << indexImg.size() << std::endl;
+
+        }else if(httpRequest.path=="/a"){
+            responseHeader = 
+                "HTTP/1.1 200 OK\r\n"
+                "\r\n";
+                
+            send(client, responseHeader, strlen(responseHeader), 0);
+            //send(client, "indexPage.c_str()", strlen(indexPage.c_str()), 0);
 
         }
 
@@ -134,8 +144,7 @@ int main() {
     char* buffer = new char[fileSize + 1];
     DWORD bytesRead;
     ReadFile(file, buffer, fileSize, &bytesRead, NULL);
-    buffer[fileSize] = '\0';
-    indexPage=buffer;
+    indexPage.assign(buffer, fileSize);
 
 
     file = CreateFile((std::string(path)+"\\img.jpg").c_str(), GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
@@ -144,9 +153,7 @@ int main() {
     buffer = new char[fileSize + 1];
     bytesRead;
     ReadFile(file, buffer, fileSize, &bytesRead, NULL);
-    buffer[fileSize] = '\0';
-    indexPage=buffer;
-
+    indexImg.assign(buffer, fileSize);
 
     CloseHandle(file);
 
